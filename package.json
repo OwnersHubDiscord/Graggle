@@ -1,0 +1,26 @@
+{
+  "name": "ownershub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xPolar/OwnersHub.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xPolar/OwnersHub/issues"
+  },
+  "homepage": "https://github.com/xPolar/OwnersHub#readme",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "discord.js": "^13.0.0-dev.t1627778678.74fc23b",
+    "dotenv": "^10.0.0",
+    "mongodb": "^4.0.1",
+    "nodemon": "^2.0.12"
+  }
+}
