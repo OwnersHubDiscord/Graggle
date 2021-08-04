@@ -5,7 +5,7 @@ exports.execute = async (bot, message, args) => {
 	if (!["619284841187246090", "315850603396071424"].includes(message.author.id)) return;
 	const isAsync = args.includes("--async");
 	const isSilent = args.includes("--silent");
-	const code = args.filter((e) => !/^--(async|silent)$/.test(e)).join(" ");
+	const code = args.filter((e) => !/^--(async|silent)$/.test(e)).join(" ").replace(/(^\`{3}js(\n|\s)*)|((\n|\s)*\`{3}$)/g, "");;
 
 	try {
 		let result = eval(isAsync ? `(async()=>{return ${code}})()` : code);

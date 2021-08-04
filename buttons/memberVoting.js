@@ -23,9 +23,10 @@ exports.execute = async (bot, interaction) => {
 		.setDescription(`You have voted on <@${interaction.customId.split("_")[1]}>`)
 		.setColor(bot.config.MAINCOLOR);
 	await interaction.reply({ embeds: [embed], ephemeral: true });
+	interaction.message.embeds[0].spliceFields(1, 1);
 	return interaction.message.edit({
 		embeds: [
-			interaction.message.embeds[0].setFields({
+			interaction.message.embeds[0].addField({
 				name: "Vote",
 				value: `Yes: ${document.value.yes.length}\nNo: ${
 					document.value.no.length

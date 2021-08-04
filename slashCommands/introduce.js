@@ -4,8 +4,7 @@ const {
 	MessageActionRow,
 	MessageButton,
 	MessageEmbed,
-	WebhookClient,
-	Invite
+	WebhookClient
 } = require("discord.js");
 
 /**
@@ -22,76 +21,109 @@ exports.execute = async (bot, interaction) => {
 	if (
 		!hasIntroduced ||
 		(Date.now() - hasIntroduced.timestamp >= 604800000 * 2 &&
-			!interaction.member.roles.cache.find((role) => role.id === "811699296809386055"))
+			!interaction.member.roles.cache.get("811699296809386055"))
 	) {
-		const votingChannel = interaction.guild.channels.cache.get("802792288480657409");
-		if (!votingChannel) return;
-		const webhook = new WebhookClient({
-			url: "https://ptb.discord.com/api/webhooks/872201630995587192/gHGpXvr2wA-ehMO1sb1-lIseqENB9kbi8_4nEeGFdcAwKChxTIU6pSMmQtBP0BMxTRPK"
-		});
-		if (!webhook) return;
-		await webhook.send({
-			content: interaction.options.getString("introduction"),
-			username: interaction.user.username,
-			avatarURL: interaction.user.displayAvatarURL({ dynamic: true })
-		});
-		const invites = interaction.options.getString("introduction").match(Invite.INVITES_PATTERN);
 		const embed = new MessageEmbed()
-			.setAuthor(interaction.user.tag)
-			.setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
-			.setTitle("A Member Has Introduced Themselves!")
-			.setDescription(interaction.options.getString("introduction"))
+			.setTitle("Send Your Introduction Here")
+			.setDescription(
+				"Make sure to **formally introduce yourself** as first impressions are important!\nYour introduction must include the following!\n• Links to the server(s) / bot(s) that you want to get in with.\n• A small description about your server(s) / bot(s).\n• As well as a small description of yourself!"
+			)
 			.setColor(bot.config.MAINCOLOR);
-		if (invites?.length > 0) {
-			let fetchedInvites = [];
-			for (const invite of invites) {
-				const fetchedInvite = await bot.fetchInvite(invite);
-				if (
-					!fetchedInvites.includes(
-						`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
-					)
-				)
-					fetchedInvites.push(
-						`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
-					);
-			}
-			embed.addField("Invites", fetchedInvites.join("\n"), false);
-		}
-		const buttonsRow = new MessageActionRow().addComponents(
-			new MessageButton({
-				customId: `memberVotingYes_${interaction.user.id}`,
-				label: "Yes",
-				style: "SUCCESS"
-			}),
-			new MessageButton({
-				customId: `memberVotingNo_${interaction.user.id}`,
-				label: "No",
-				style: "DANGER"
+		await interaction.user.send({ embeds: [embed] });
+		const checkDMs = new MessageEmbed()
+			.setTitle("Check Your DMs!")
+			.setDescription("I have sent you a message in your DMs, you have two minutes to respond!")
+			.setColor(bot.config.MAINCOLOR);
+		interaction.reply({ embeds: [checkDMs], ephemeral: true });
+		interaction.user.dmChannel
+			.awaitMessages({
+				max: 1,
+				time: 120000
 			})
-		);
-		const message = await votingChannel.send({ embeds: [embed], components: [buttonsRow] });
-		await bot.mongo
-			.db("users")
-			.collection("introductions")
-			.updateOne(
-				{ _id: interaction.user.id },
-				{
-					$set: {
-						introduction: interaction.options.getString("introduction"),
-						message: message.id,
-						timestamp: Date.now(),
-						verified: false,
-						yes: [],
-						no: []
+			.then(async (messages) => {
+				const message = messages.first();
+				if (!message) return;
+				const votingChannel = interaction.guild.channels.cache.get("802792288480657409");
+				if (!votingChannel) return;
+				const webhook = new WebhookClient({
+					url: "https://ptb.discord.com/api/webhooks/872201630995587192/gHGpXvr2wA-ehMO1sb1-lIseqENB9kbi8_4nEeGFdcAwKChxTIU6pSMmQtBP0BMxTRPK"
+				});
+				if (!webhook) return;
+				await webhook.send({
+					content: message.content,
+					username: interaction.user.username,
+					avatarURL: interaction.user.displayAvatarURL({ dynamic: true }),
+					allowedMentions: { roles: [], parse: ["users"] }
+				});
+				const invites = message.content.match(
+					/(https?:\/\/)?(www.)?(discord.(gg|io|me|li)|discordapp.com\/invite)\/[^\s/]+?(?=\b)/g
+				);
+				const votingEmbed = new MessageEmbed()
+					.setAuthor(interaction.user.tag)
+					.setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
+					.setTitle("A Member Has Introduced Themselves!")
+					.setDescription(message.content)
+					.setColor(bot.config.MAINCOLOR);
+				if (invites?.length > 0) {
+					let fetchedInvites = [];
+					for (const invite of invites) {
+						const fetchedInvite = await bot.fetchInvite(invite);
+						if (
+							!fetchedInvites.includes(
+								`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
+							)
+						)
+							fetchedInvites.push(
+								`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
+							);
 					}
-				},
-				{ upsert: true }
-			);
-		const responseEmbed = new MessageEmbed()
-			.setTitle("Introduction Sent")
-			.setDescription("You will be automatically verified in twelve hours if no issues arise!")
-			.setColor(bot.config.MAINCOLOR);
-		return interaction.reply({ embeds: [responseEmbed], ephemeral: true });
+					votingEmbed.addField("Invites", fetchedInvites.join("\n"), false);
+				}
+				const buttonsRow = new MessageActionRow().addComponents(
+					new MessageButton({
+						customId: `memberVotingYes_${interaction.user.id}`,
+						label: "Yes",
+						style: "SUCCESS"
+					}),
+					new MessageButton({
+						customId: `memberVotingNo_${interaction.user.id}`,
+						label: "No",
+						style: "DANGER"
+					})
+				);
+				const votingMessage = await votingChannel.send({
+					embeds: [votingEmbed],
+					components: [buttonsRow]
+				});
+				await bot.mongo
+					.db("users")
+					.collection("introductions")
+					.updateOne(
+						{ _id: interaction.user.id },
+						{
+							$set: {
+								introduction: message.content,
+								message: votingMessage.id,
+								timestamp: Date.now(),
+								verified: false,
+								yes: [],
+								no: []
+							}
+						},
+						{ upsert: true }
+					);
+				const responseEmbed = new MessageEmbed()
+					.setTitle("Introduction Sent")
+					.setDescription("You will be automatically verified in twelve hours if no issues arise!")
+					.setColor(bot.config.MAINCOLOR);
+				return message.reply({ embeds: [responseEmbed] });
+			});
+	} else if (interaction.member.roles.cache.get("811699296809386055")) {
+		const embed = new MessageEmbed()
+			.setTitle("Already Verified")
+			.setDescription("You can't introduce yourself again!")
+			.setColor(bot.config.ERRORCOLOR);
+		return interaction.reply({ embeds: [embed], ephemeral: true });
 	} else {
 		const embed = new MessageEmbed()
 			.setTitle("Already Introduced")
@@ -105,13 +137,5 @@ exports.execute = async (bot, interaction) => {
 
 exports.config = {
 	name: "introduce",
-	description: "Introduce yourself to the Owners Hub server.",
-	options: [
-		{
-			name: "introduction",
-			type: "STRING",
-			description: "Your introduction",
-			required: true
-		}
-	]
+	description: "Introduce yourself to the Owners Hub server. Make sure your DMs are open!"
 };
