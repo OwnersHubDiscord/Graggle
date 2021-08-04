@@ -7,19 +7,22 @@ const { blueBright, bold, yellowBright } = require("chalk");
  * @param {string} directory The directory we want to get the events from.
  */
 function getEvents(bot, directory) {
-    readdirSync(directory)
-        .forEach(file => {
-            stat(`${directory}/${file}`, async (err, information) => {
-                if (err) throw err;
+	readdirSync(directory).forEach((file) => {
+		stat(`${directory}/${file}`, async (err, information) => {
+			if (err) throw err;
 
-                if (information.isDirectory()) getCommands(bot, `${directory}/${file}`);
-                else if (file.endsWith(".js")) {
-                    const event = require(`../${directory}/${file}`);
-                    bot.on(file.split(".")[0], event.bind(null, bot));
-                    console.log(bold(`${blueBright("[EVENT-LOADED]")} ${yellowBright(`${directory}/${file}`)} has loaded!`));
-                }
-            });
-        });
+			if (information.isDirectory()) getCommands(bot, `${directory}/${file}`);
+			else if (file.endsWith(".js")) {
+				const event = require(`../${directory}/${file}`);
+				bot.on(file.split(".")[0], event.bind(null, bot));
+				console.log(
+					bold(
+						`${blueBright("[EVENT-LOADED]")} ${yellowBright(`${directory}/${file}`)} has loaded!`
+					)
+				);
+			}
+		});
+	});
 }
 
 module.exports = { getEvents };

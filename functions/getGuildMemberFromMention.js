@@ -7,15 +7,15 @@ const { Guild, GuildMember } = require("discord.js");
  * @returns {GuildMember|null}
  */
 async function getGuildMemberFromMention(guild, mention) {
-    if (!mention) return;
+	if (!mention) return;
 
-    if (mention.startsWith("<@") && mention.endsWith(">")) {
-        mention = mention.slice(2, -1);
+	if (mention.startsWith("<@") && mention.endsWith(">")) {
+		mention = mention.slice(2, -1);
 
-        if (mention.startsWith("!")) mention = mention.slice(1);
+		if (mention.startsWith("!")) mention = mention.slice(1);
 
-        return guild.members.cache.get(mention) || await bot.users.fetch(mention);
-    }
+		return guild.members.cache.get(mention) || (await bot.users.fetch(mention));
+	}
 }
 
 module.exports = { getGuildMemberFromMention };

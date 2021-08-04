@@ -1,4 +1,12 @@
-const { Client, CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } = require("discord.js");
+const {
+	Client,
+	CommandInteraction,
+	MessageActionRow,
+	MessageButton,
+	MessageEmbed,
+	WebhookClient,
+	Invite
+} = require("discord.js");
 
 /**
  * Introduce yourself to the Owners Hub server.
@@ -11,15 +19,44 @@ exports.execute = async (bot, interaction) => {
 		.db("users")
 		.collection("introductions")
 		.findOne({ _id: interaction.user.id });
-	if (!hasIntroduced || Date.now() - hasIntroduced.timestamp >= 604800000) {
+	if (
+		!hasIntroduced ||
+		(Date.now() - hasIntroduced.timestamp >= 604800000 * 2 &&
+			!interaction.member.roles.cache.find((role) => role.id === "811699296809386055"))
+	) {
 		const votingChannel = interaction.guild.channels.cache.get("802792288480657409");
 		if (!votingChannel) return;
+		const webhook = new WebhookClient({
+			url: "https://ptb.discord.com/api/webhooks/872201630995587192/gHGpXvr2wA-ehMO1sb1-lIseqENB9kbi8_4nEeGFdcAwKChxTIU6pSMmQtBP0BMxTRPK"
+		});
+		if (!webhook) return;
+		await webhook.send({
+			content: interaction.options.getString("introduction"),
+			username: interaction.user.username,
+			avatarURL: interaction.user.displayAvatarURL({ dynamic: true })
+		});
+		const invites = interaction.options.getString("introduction").match(Invite.INVITES_PATTERN);
 		const embed = new MessageEmbed()
 			.setAuthor(interaction.user.tag)
 			.setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
 			.setTitle("A Member Has Introduced Themselves!")
 			.setDescription(interaction.options.getString("introduction"))
 			.setColor(bot.config.MAINCOLOR);
+		if (invites?.length > 0) {
+			let fetchedInvites = [];
+			for (const invite of invites) {
+				const fetchedInvite = await bot.fetchInvite(invite);
+				if (
+					!fetchedInvites.includes(
+						`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
+					)
+				)
+					fetchedInvites.push(
+						`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
+					);
+			}
+			embed.addField("Invites", fetchedInvites.join("\n"), false);
+		}
 		const buttonsRow = new MessageActionRow().addComponents(
 			new MessageButton({
 				customId: `memberVotingYes_${interaction.user.id}`,
@@ -43,14 +80,16 @@ exports.execute = async (bot, interaction) => {
 						introduction: interaction.options.getString("introduction"),
 						message: message.id,
 						timestamp: Date.now(),
-						verified: false
+						verified: false,
+						yes: [],
+						no: []
 					}
 				},
 				{ upsert: true }
 			);
-			const responseEmbed = new MessageEmbed()
+		const responseEmbed = new MessageEmbed()
 			.setTitle("Introduction Sent")
-			.setDescription("You will be automatically verified in twelve hours if your vote passes!")
+			.setDescription("You will be automatically verified in twelve hours if no issues arise!")
 			.setColor(bot.config.MAINCOLOR);
 		return interaction.reply({ embeds: [responseEmbed], ephemeral: true });
 	} else {

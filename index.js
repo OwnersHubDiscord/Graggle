@@ -13,7 +13,8 @@ const bot = new Client({
 		Intents.FLAGS.GUILD_MEMBERS,
 		Intents.FLAGS.GUILD_MESSAGES,
 		Intents.FLAGS.GUILD_MESSAGE_REACTIONS
-	]
+	],
+	allowedMentions: { parse: ["users", "roles"], repliedUser: false }
 });
 bot.config = process.env;
 bot.commands = new Collection();
@@ -21,8 +22,8 @@ bot.slashCommands = new Collection();
 bot.buttons = new Collection();
 bot.mongo = new MongoClient(bot.config.MONGO, { useUnifiedTopology: true });
 
-getCommands(bot, "./commands");
 getSlashCommands(bot, "./slashCommands");
+getCommands(bot, "./commands");
 getButtons(bot, "./buttons");
 getEvents(bot, "./events");
 

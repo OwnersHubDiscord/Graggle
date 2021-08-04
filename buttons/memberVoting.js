@@ -27,11 +27,11 @@ exports.execute = async (bot, interaction) => {
 		embeds: [
 			interaction.message.embeds[0].setFields({
 				name: "Vote",
-				value: `Yes: ${document.value.yes?.length || 0}\nNo: ${
-					document.value.no?.length || 0
+				value: `Yes: ${document.value.yes.length}\nNo: ${
+					document.value.no.length
 				}\n\n**They currently ${
-					(100 * (document.value.yes?.length || 0)) /
-						((document.value.yes?.length || 0) + (document.value.no?.length || 0)) >=
+					(100 * document.value.yes.length) /
+						(document.value.yes.length + document.value.no?.length) >=
 					60
 						? "pass"
 						: "don't pass"

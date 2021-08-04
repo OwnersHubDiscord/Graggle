@@ -13,46 +13,41 @@ async function verifyUsers(bot) {
 			const member = await getGuildMember(guild, document._id);
 			if (member) {
 				const channel = guild.channels.cache.get("802792288480657409");
-				const message = await channel.messages.fetch(document.message);
-				if (message) {
-					if (
-						(100 * (document.yes?.length || 0)) /
-							((document.yes?.length || 0) + (document.no?.length || 0)) >=
-						60
-					) {
-						await member.roles.add("811699296809386055");
-						await bot.mongo
-							.db("users")
-							.collection("introductions")
-							.updateOne({ _id: document._id }, { $set: { verified: true } });
-						return message.edit({
-							embeds: [
-								message.embeds[0]
-									.setFooter(
-										`This user has been verified with a vote of ${
-											document.yes?.length || 0
-										} to ${document.no?.length || 0}!`
-									)
-									.setColor("#57F287")
-									.spliceFields(0, 1)
-							],
-							components: []
-						});
-					} else {
-						return message.edit({
-							embeds: [
-								message.embeds[0]
-									.setFooter(
-										`This user hasn't been verified with a vote of ${
-											document.yes?.length || 0
-										} to ${document.no?.length || 0}!`
-									)
-									.setColor("#ED4245")
-									.spliceFields(0, 1)
-							],
-							components: []
-						});
-					}
+				let message;
+				try {
+					message = await channel.messages.fetch(document.message);
+				} catch {
+					return;
+				}
+				if ((100 * document.yes.length) / (document.yes.length + document.no.length) >= 60) {
+					await member.roles.add("811699296809386055");
+					await bot.mongo
+						.db("users")
+						.collection("introductions")
+						.updateOne({ _id: document._id }, { $set: { verified: true } });
+					return message.edit({
+						embeds: [
+							message.embeds[0]
+								.setFooter(
+									`This user has been verified with a vote of ${document.yes.length} to ${document.no.length}!`
+								)
+								.setColor("#57F287")
+								.spliceFields(1, 1)
+						],
+						components: []
+					});
+				} else {
+					return message.edit({
+						embeds: [
+							message.embeds[0]
+								.setFooter(
+									`This user hasn't been verified with a vote of ${document.yes.length} to ${document.no.length}!`
+								)
+								.setColor("#ED4245")
+								.spliceFields(1, 1)
+						],
+						components: []
+					});
 				}
 			}
 		}

@@ -9,5 +9,7 @@ module.exports = async (bot, interaction) => {
 	if (interaction.isCommand()) bot.slashCommands.get(interaction.commandName).execute(bot, interaction);
 	else if (interaction.isButton())
 		bot.buttons.get(interaction.customId)?.execute(bot, interaction) ||
-			bot.buttons.find((button) => interaction.customId.startsWith(button.config.name))?.execute(bot, interaction);
+			bot.buttons
+				.find((button) => interaction.customId.startsWith(button.config.name))
+				?.execute(bot, interaction);
 };

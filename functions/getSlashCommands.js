@@ -7,19 +7,24 @@ const { blueBright, bold, yellowBright } = require("chalk");
  * @param {string} directory The directory we want to get the commands from.
  */
 function getSlashCommands(bot, directory) {
-    readdirSync(directory)
-        .forEach(file => {
-            stat(`${directory}/${file}`, async (error, information) => {
-                if (error) throw error;
+	readdirSync(directory).forEach((file) => {
+		stat(`${directory}/${file}`, async (error, information) => {
+			if (error) throw error;
 
-                if (information.isDirectory()) getSlashCommands(bot, `${directory}/${file}`);
-                else if (file.endsWith(".js")) {
-                    const command = require(`../${directory}/${file}`);
-                    bot.slashCommands.set(command.config.name, command);
-                    console.log(bold(`${blueBright("[SLASH-COMMAND-LOADED]")} ${yellowBright(`${directory}/${file}`)} has loaded!`));
-                }
-            });
-        });
+			if (information.isDirectory()) getSlashCommands(bot, `${directory}/${file}`);
+			else if (file.endsWith(".js")) {
+				const command = require(`../${directory}/${file}`);
+				bot.slashCommands.set(command.config.name, command);
+				console.log(
+					bold(
+						`${blueBright("[SLASH-COMMAND-LOADED]")} ${yellowBright(
+							`${directory}/${file}`
+						)} has loaded!`
+					)
+				);
+			}
+		});
+	});
 }
 
 module.exports = { getSlashCommands };
