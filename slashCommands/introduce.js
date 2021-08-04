@@ -18,11 +18,13 @@ exports.execute = async (bot, interaction) => {
 		.db("users")
 		.collection("introductions")
 		.findOne({ _id: interaction.user.id });
-	if (
-		!hasIntroduced ||
-		(Date.now() - hasIntroduced.timestamp >= 604800000 * 2 &&
-			!interaction.member.roles.cache.get("811699296809386055"))
-	) {
+	if (interaction.member.roles.cache.get("811699296809386055")) {
+		const embed = new MessageEmbed()
+			.setTitle("Already Verified")
+			.setDescription("You can't introduce yourself again!")
+			.setColor(bot.config.ERRORCOLOR);
+		return interaction.reply({ embeds: [embed], ephemeral: true });
+	} else if (!hasIntroduced || Date.now() - hasIntroduced.timestamp >= 604800000 * 2) {
 		const embed = new MessageEmbed()
 			.setTitle("Send Your Introduction Here")
 			.setDescription(
@@ -118,12 +120,6 @@ exports.execute = async (bot, interaction) => {
 					.setColor(bot.config.MAINCOLOR);
 				return message.reply({ embeds: [responseEmbed] });
 			});
-	} else if (interaction.member.roles.cache.get("811699296809386055")) {
-		const embed = new MessageEmbed()
-			.setTitle("Already Verified")
-			.setDescription("You can't introduce yourself again!")
-			.setColor(bot.config.ERRORCOLOR);
-		return interaction.reply({ embeds: [embed], ephemeral: true });
 	} else {
 		const embed = new MessageEmbed()
 			.setTitle("Already Introduced")

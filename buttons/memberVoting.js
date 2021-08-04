@@ -26,19 +26,17 @@ exports.execute = async (bot, interaction) => {
 	interaction.message.embeds[0].spliceFields(1, 1);
 	return interaction.message.edit({
 		embeds: [
-			interaction.message.embeds[0].addField({
-				name: "Vote",
-				value: `Yes: ${document.value.yes.length}\nNo: ${
-					document.value.no.length
-				}\n\n**They currently ${
+			interaction.message.embeds[0].addField(
+				"Vote",
+				`Yes: ${document.value.yes.length}\nNo: ${document.value.no.length}\n\n**They currently ${
 					(100 * document.value.yes.length) /
 						(document.value.yes.length + document.value.no?.length) >=
 					60
 						? "pass"
 						: "don't pass"
 				} the requirements to get into the server!**`,
-				inline: false
-			})
+				false
+			)
 		]
 	});
 };
