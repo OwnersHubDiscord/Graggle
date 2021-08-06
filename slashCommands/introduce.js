@@ -40,11 +40,19 @@ exports.execute = async (bot, interaction) => {
 		interaction.user.dmChannel
 			.awaitMessages({
 				max: 1,
-				time: 120000
+				time: 600000
 			})
 			.then(async (messages) => {
 				const message = messages.first();
-				if (!message) return;
+				if (!message) {
+					const embed = new MessageEmbed()
+						.setTitle("Time's Up!")
+						.setDescription(
+							"You took too long to respond so this command timed out, run this command again!"
+						)
+						.setColor(bot.config.ERRORCOLOR);
+					return interaction.user.send({ embeds: [embed] });
+				}
 				const votingChannel = interaction.guild.channels.cache.get("802792288480657409");
 				if (!votingChannel) return;
 				const webhook = new WebhookClient({
@@ -52,10 +60,10 @@ exports.execute = async (bot, interaction) => {
 				});
 				if (!webhook) return;
 				await webhook.send({
-					content: message.content,
+					content: `${interaction.user.toString()}\n${message.content}}`,
 					username: interaction.user.username,
 					avatarURL: interaction.user.displayAvatarURL({ dynamic: true }),
-					allowedMentions: { roles: [], parse: ["users"] }
+					allowedMentions: { roles: [], users: [] }
 				});
 				const invites = message.content.match(
 					/(https?:\/\/)?(www.)?(discord.(gg|io|me|li)|discordapp.com\/invite)\/[^\s/]+?(?=\b)/g
@@ -69,7 +77,11 @@ exports.execute = async (bot, interaction) => {
 				if (invites?.length > 0) {
 					let fetchedInvites = [];
 					for (const invite of invites) {
-						const fetchedInvite = await bot.fetchInvite(invite);
+						try {
+							const fetchedInvite = await bot.fetchInvite(invite);
+						} catch {
+							continue;
+						}
 						if (
 							!fetchedInvites.includes(
 								`[${fetchedInvite.guild} - ${fetchedInvite.memberCount} members](${fetchedInvite.url})`
