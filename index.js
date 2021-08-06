@@ -4,6 +4,7 @@ const { bold, greenBright } = require("chalk");
 const { getEvents } = require("./functions/getEvents");
 const { getButtons } = require("./functions/getButtons");
 const { getCommands } = require("./functions/getCommands");
+const { getDropDowns } = require("./functions/getDropDowns");
 const { Client, Intents, Collection } = require("discord.js");
 const { getSlashCommands } = require("./functions/getSlashCommands");
 
@@ -22,11 +23,13 @@ bot.config = process.env;
 bot.commands = new Collection();
 bot.slashCommands = new Collection();
 bot.buttons = new Collection();
+bot.dropDowns = new Collection();
 bot.mongo = new MongoClient(bot.config.MONGO, { useUnifiedTopology: true });
 
 getSlashCommands(bot, "./slashCommands");
 getCommands(bot, "./commands");
 getButtons(bot, "./buttons");
+getDropDowns(bot, "./dropDowns");
 getEvents(bot, "./events");
 
 bot.mongo.connect().then(async () => {

@@ -12,4 +12,9 @@ module.exports = async (bot, interaction) => {
 			bot.buttons
 				.find((button) => interaction.customId.startsWith(button.config.name))
 				?.execute(bot, interaction);
+	else if (interaction.isSelectMenu())
+		bot.dropDowns.get(interaction.customId) ||
+			bot.dropDowns
+				.find((dropDown) => interaction.customId.startsWith(dropDown.config.name))
+				?.execute(bot, interaction);
 };

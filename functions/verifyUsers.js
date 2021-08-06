@@ -9,7 +9,7 @@ async function verifyUsers(bot) {
 	const documents = await bot.mongo.db("users").collection("introductions").find({ verified: false });
 	const documentsArray = await documents.toArray();
 	documentsArray.forEach(async (document) => {
-		if (document.timestamp <= 43200000) {
+		if (Date.now() - document.timestamp <= 43200000) {
 			const member = await getGuildMember(guild, document._id);
 			if (member) {
 				const channel = guild.channels.cache.get("802792288480657409");
