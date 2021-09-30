@@ -4,7 +4,7 @@ const { version } = require("../config/bot.config");
 const BetterShardingManager = require("../lib/extensions/BetterShardingManager.js");
 
 const _version = process.env.NODE_ENV === "development" ? `${version}-dev` : version;
-const statusLogger = new Logger(null, "Lifeboat");
+const statusLogger = new Logger(null, "Graggle");
 
 let allShardsStarted = false;
 
@@ -12,8 +12,8 @@ const manager = new BetterShardingManager("./src/bot/bot.js", {
 	token: process.env.DISCORD_TOKEN
 });
 
-statusLogger.info(`Starting Lifeboat ${_version}`);
-statusLogger.webhookLog("status", `Starting Lifeboat ${_version}`);
+statusLogger.info(`Starting Graggle ${_version}`);
+statusLogger.webhookLog("status", `Starting Graggle ${_version}`);
 
 manager.spawn({
 	timeout: -1
