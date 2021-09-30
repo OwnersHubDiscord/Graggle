@@ -59,21 +59,36 @@ class Vouch extends Command {
 				.db("users")
 				.collection("vouchers")
 				.findOne({ _id: interaction.options.getUser("user").id });
-			console.log(voucher);
+			const introduction = await this.client.mongo
+				.db("users")
+				.collection("introductions")
+				.findOne({ _id: interaction.options.getUser("user").id });
 			if (!voucher) {
 				const embed = new MessageEmbed()
-					.setTitle(interaction.options.getUser("user").tag)
-					.setDescription("This user was verified before vouching was introduced.")
+					.setAuthor(
+						interaction.options.getUser("user").tag,
+						interaction.options.getUser("user").displayAvatarURL({ dynamic: true })
+					)
+					.setDescription(
+						!interaction.options
+							.getMember("user")
+							.roles.cache.has(this.client.config.verifiedRoleId)
+							? `This user hasn't been vouched for.${introduction ? `\n\n[**Jump to introduction**](${introduction.url})` : ""}`
+							: "This user was verified before vouching was introduced."
+					)
 					.setColor(this.client.config.colors.primary);
 				return interaction.reply({ embeds: [embed] });
 			}
 			const embed = new MessageEmbed()
-				.setTitle(interaction.options.getUser("user").tag)
+				.setAuthor(
+					interaction.options.getUser("user").tag,
+					interaction.options.getUser("user").displayAvatarURL({ dynamic: true })
+				)
 				.setDescription(
 					voucher.voucher
 						? `Vouched by <@${voucher.voucher.user}> at <t:${Math.floor(
 								voucher.voucher.timestamp / 1000
-						  )}:F> for: ${voucher.voucher.reason}`
+						  )}:F> for: ${voucher.voucher.reason}${introduction ? `\n\n[**Jump to introduction**](${introduction.url})` : ""}`
 						: "This user was verified before vouching was introduced."
 				)
 				.setColor(this.client.config.colors.primary);

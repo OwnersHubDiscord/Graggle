@@ -7,7 +7,7 @@ const config = {
 	hastebin: "https://mystb.in/",
 
 	colors: {
-		primary: "#5865F2",
+		primary: "#FEE65C",
 		success: "#57F287",
 		error: "#ED4245"
 	},
@@ -18,9 +18,11 @@ const config = {
 		Intents.FLAGS.GUILD_MESSAGES,
 	],
 
-	introductionsChannelId: "890347205901299742",
-	vouchesChannelId: "890382723615703111",
-	verifiedRoleId: "890357425499152434",
+	introductionsChannelId: "853361354877304832",
+	vouchesChannelId: "853361354877304832",
+	verifiedRoleId: "811699296809386055",
+
+	welcomeChannelId: "812021897087942717",
 
 	logging: {
 		messages: "893032886545035284"
