@@ -18,14 +18,15 @@ const config = {
 		Intents.FLAGS.GUILD_MESSAGES,
 	],
 
-	introductionsChannelId: "853361354877304832",
-	vouchesChannelId: "853361354877304832",
+	introductionsChannelId: "802791809725759539",
+	vouchesChannelId: "893292607445286952",
 	verifiedRoleId: "811699296809386055",
 
 	welcomeChannelId: "812021897087942717",
+	voteKickChannelId: "853361354877304832",
 
 	logging: {
-		messages: "893032886545035284"
+		messages: "853361354877304832"
 	},
 
 	vouchSettings: {
