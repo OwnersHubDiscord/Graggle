@@ -1,7 +1,7 @@
 const { format } = require("@lukeed/ms");
 const Command = require("../../../../lib/classes/Command");
 const BetterClient = require("../../../../lib/extensions/BetterClient");
-const { CommandInteraction, MessageEmbed } = require("discord.js");
+const { CommandInteraction, MessageEmbed, TextChannel } = require("discord.js");
 
 class Vouch extends Command {
 	/**
@@ -73,7 +73,11 @@ class Vouch extends Command {
 						!interaction.options
 							.getMember("user")
 							.roles.cache.has(this.client.config.verifiedRoleId)
-							? `This user hasn't been vouched for.${introduction ? `\n\n[**Jump to introduction**](${introduction.url})` : ""}`
+							? `This user hasn't been vouched for.${
+									introduction
+										? `\n\n[**Jump to introduction**](${introduction.url})`
+										: ""
+							  }`
 							: "This user was verified before vouching was introduced."
 					)
 					.setColor(this.client.config.colors.primary);
@@ -88,7 +92,11 @@ class Vouch extends Command {
 					voucher.voucher
 						? `Vouched by <@${voucher.voucher.user}> at <t:${Math.floor(
 								voucher.voucher.timestamp / 1000
-						  )}:F> for: ${voucher.voucher.reason}${introduction ? `\n\n[**Jump to introduction**](${introduction.url})` : ""}`
+						  )}:F> for: ${voucher.voucher.reason}${
+								introduction
+									? `\n\n[**Jump to introduction**](${introduction.url})`
+									: ""
+						  }`
 						: "This user was verified before vouching was introduced."
 				)
 				.setColor(this.client.config.colors.primary);
@@ -197,9 +205,6 @@ class Vouch extends Command {
 				})
 			);
 		}
-		await interaction.guild.members.cache
-			.get(interaction.options.getUser("user").id)
-			?.roles.add(this.client.config.verifiedRoleId);
 		await this.client.mongo
 			.db("users")
 			.collection("vouchers")
@@ -239,13 +244,25 @@ class Vouch extends Command {
 				"reason"
 			)}`
 		);
-		return interaction.reply(
+		await interaction.reply(
 			`${interaction.user} vouched for ${interaction.options.getUser("user")}${
 				this.client.config.vouchSettings.requiresIntroduction
 					? `, find their introduction [**here**](<${userIntroduction.url}>).`
 					: "."
 			}`
 		);
+		await interaction.guild.members.cache
+			.get(interaction.options.getUser("user").id)
+			?.roles.add(this.client.config.verifiedRoleId);
+		/** @type {TextChannel} */
+		const generalChat = this.client.channels.cache.get(this.client.config.generalChatId);
+		if (!generalChat) return this.client.logger.debug(`I couldn't find the general chat!`);
+		return generalChat.send({
+			content: `Everyone please welcome ${interaction.options.getUser(
+				"user"
+			)} to the community!`,
+			allowedMentions: { parse: ["users"] }
+		});
 	}
 }
 

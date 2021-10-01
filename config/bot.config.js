@@ -21,6 +21,7 @@ const config = {
 	introductionsChannelId: "802791809725759539",
 	vouchesChannelId: "893292607445286952",
 	verifiedRoleId: "811699296809386055",
+	generalChatId: "802788546942730293",
 
 	welcomeChannelId: "812021897087942717",
 	voteKickChannelId: "853361354877304832",
