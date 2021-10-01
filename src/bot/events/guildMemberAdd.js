@@ -7,6 +7,7 @@ class GuildMemberAdd extends EventHandler {
 	 * @param {GuildMember} member The member that has joined a guild.
 	 */
 	async run(member) {
+		if (member.bot) return;
 		const welcomeChannel = this.client.channels.cache.get(this.client.config.welcomeChannelId);
 		if (!welcomeChannel)
 			return this.client.logger.debug(

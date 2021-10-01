@@ -8,7 +8,8 @@ class MessageCreate extends EventHandler {
 	 */
 	async run(message) {
 		if (message.bot || message.webhookId) return;
-		if (!message.bot && message.channel.id === this.client.config.introductionsChannelId) return this.client.emit("introductionCreate", message);
+		else if (message.channel.id === this.client.config.vouchesChannelId) return message.delete();
+		else if (!message.bot && message.channel.id === this.client.config.introductionsChannelId) return this.client.emit("introductionCreate", message);
 	}
 }
 
