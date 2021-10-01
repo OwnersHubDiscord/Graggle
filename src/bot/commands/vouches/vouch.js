@@ -115,8 +115,24 @@ class Vouch extends Command {
 				);
 			}
 			return interaction.reply({ embeds: [embed] });
-		}
-		if (interaction.channel.id !== this.client.config.vouchesChannelId) {
+		} else if (
+			Date.now() - interaction.member.joinedTimestamp >=
+			this.client.config.vouchSettings.memberFor
+		) {
+			this.client.logger.debug(
+				`${interaction.user.tag} tried to vouch ${
+					interaction.options.getUser("user").tag
+				} for: ${interaction.options.getString(
+					"reason"
+				)} but failed because they haven't been a member for a week!`
+			);
+			return interaction.reply(
+				this.client.functions.generateErrorMessage(this.client, {
+					title: "Can't Vouch",
+					description: "You can't vouch yet as you haven't been a member for a week!"
+				})
+			);
+		} else if (interaction.channel.id !== this.client.config.vouchesChannelId) {
 			this.client.logger.debug(
 				`${interaction.user.tag} tried to vouch ${
 					interaction.options.getUser("user").tag

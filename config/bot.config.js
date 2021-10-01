@@ -33,7 +33,8 @@ const config = {
 	vouchSettings: {
 		requiresIntroduction: true,
 		perPeriod: 	10,
-		period: 86_400_000
+		period: 86_400_000,
+		memberFor: 604_800_000
 	},
 
 	apiKeys: {},
